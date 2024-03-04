@@ -1,0 +1,43 @@
+package com.seintes.wanandroid.api;
+
+import com.seintes.wanandroid.net.ArticleDatas;
+import com.seintes.wanandroid.net.ArticleListData;
+import com.seintes.wanandroid.net.Data;
+import com.seintes.wanandroid.wechat.Author;
+
+import java.util.List;
+
+import io.reactivex.rxjava3.core.Observable;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+
+/**
+ * @Description
+ * @Author xmhaz
+ * @Time 2023/12/1 15:38
+ */
+public interface Api {
+
+    //置顶列表
+    @GET("article/top/json")
+    Observable<Data<List<ArticleDatas>>> getTopArticleData();
+    //文章列表
+    @GET("article/list/{page}/json")
+    Observable<Data<ArticleListData>> getHomeArticleData(@Path("page") int page);
+
+    //问答列表
+    @GET("wenda/list/{page}/json")
+    Call<Data<ArticleListData>> getWendaData(@Path("page") int page);
+
+    //公众号列表
+    @GET("wxarticle/chapters/json")
+    Observable<Data<List<Author>>> getWxAuthor();
+
+    //查看某个公众号数据
+    @GET("wxarticle/list/{id}/{page}/json")
+    Observable<Data<ArticleListData>> getWxArticleData(@Path("id")int id,@Path("page") int page);
+
+
+
+}

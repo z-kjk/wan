@@ -1,0 +1,19 @@
+package com.seintes.wanandroid.api;
+
+import com.seintes.wanandroid.net.ArticleListData;
+import com.seintes.wanandroid.net.Data;
+
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+
+/**
+ * @Description
+ * @Author xmhaz
+ * @Time 2023/12/1 15:38
+ */
+public interface Api {
+    //文章列表
+    @GET("article/list/{page}/json")
+    Call<Data<ArticleListData>> getHomeArticleData(@Path("page") int page);
+}

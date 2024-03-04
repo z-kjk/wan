@@ -1,0 +1,80 @@
+package com.seintes.wanandroid.adapter;
+
+import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.bumptech.glide.Glide;
+import com.seintes.wanandroid.R;
+import com.seintes.wanandroid.net.ArticleDatas;
+
+import java.util.List;
+
+/**
+ * @Description 公众号中的文章的数据适配器,同时也是基类
+ * @Author xmhaz
+ * @Time 2023/12/7 11:13
+ */
+public class ChapterAdapter extends ArrayAdapter<ArticleDatas> {
+
+    public ChapterAdapter(@NonNull Context context, int resource, @NonNull List<ArticleDatas> objects) {
+        super(context, resource, objects);
+    }
+
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        ArticleDatas article=getItem(position);//得到当前项的Article实例
+        //为每一个子项加载设定的布局
+        View view= LayoutInflater.from(getContext()).inflate(R.layout.item_acticle,parent,false);
+        //分别获取 image view 和 textview 的实例
+        TextView author =view.findViewById(R.id.tvAuthor);
+        TextView date=view.findViewById(R.id.tvDate);
+        TextView title =view.findViewById(R.id.tvTitle);
+        TextView type=view.findViewById(R.id.tvType);
+        //补充
+        TextView desc=view.findViewById(R.id.tvDesc);
+
+        author.setText(article.getAuthor());
+        /*体系作者修改*/
+        if(article.getAuthor()=="")
+        {
+            author.setText(article.getShareUser());
+        }
+        date.setText(article.getNiceDate());
+        title.setText(article.getTitle());
+        desc.setText(article.getDesc());
+        String actype=article.getSuperChapterName()+"/"+article.getChapterName();
+        type.setText(actype);
+
+        //图片显示
+        ImageView img = view.findViewById(R.id.ivProject);
+        //显示图片
+        String imgurl = article.getEnvelopePic();
+//        Log.e("TAG","获得的图片地址"+imgurl);
+        if(imgurl=="")
+        {
+            img.setVisibility(View.GONE);
+            // 让文字顶格显示
+            title.setPadding(0, 0, 0, 0);
+        }
+        else
+        {
+            Uri uri = Uri.parse(imgurl);
+            img.setVisibility(View.VISIBLE);
+            Glide.with(getContext())
+                    .load(uri)
+                    .into(img);
+        }
+        return view;
+    }
+}

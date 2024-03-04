@@ -1,0 +1,116 @@
+package com.seintes.wanandroid;
+
+import android.os.Bundle;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.seintes.wanandroid.adapter.ActicleAdapter;
+import com.seintes.wanandroid.api.Api;
+import com.seintes.wanandroid.net.ArticleDatas;
+import com.seintes.wanandroid.net.ArticleListData;
+import com.seintes.wanandroid.net.Data;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Path;
+
+
+public class HomeFragment extends Fragment {
+    private static final String TAG = "HomeFragment";
+    private Retrofit mRetrofit;
+    private String mFrom;
+    ListView listView;
+    static HomeFragment newInstance(String from){
+        HomeFragment fragment = new HomeFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("from",from);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(getArguments()!=null){
+            mFrom = getArguments().getString("from");
+        }
+//        initRetro();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home,null);
+
+        listView = (ListView)view.findViewById(R.id.list_view);
+        initRetro();
+        return view;
+    }
+    //
+    public void initRetro()
+    {
+        mRetrofit= new Retrofit.Builder()
+                .baseUrl("https://wanandroid.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        getArticledata();
+    }
+    public void getArticledata()   //获得返回的数据
+    {
+        Api api = mRetrofit.create(Api.class);
+        //对发送请求进行封装
+        Call<Data<ArticleListData>> articleCall = api.getHomeArticleData(0);
+        //异步请求
+        articleCall.enqueue(new Callback<Data<ArticleListData>>() {
+            //请求成功回调
+            @Override
+            public void onResponse(Call<Data<ArticleListData>> call, Response<Data<ArticleListData>> response) {
+                Log.i("TAG", "get回调成功:异步执行");
+                Data<ArticleListData> body = response.body();
+                if (body == null) return;
+                Log.i("TAG", "body获得");
+                ArticleListData info = body.getData();
+                if (info == null) return;
+                Log.i("TAG", "info获得");
+
+                List<ArticleDatas> datas = info.getDatas();
+
+                //以下为测试传入数据代码
+//                for(int i=0;i<datas.size();i++)
+//                {
+//                    ArticleDatas test = datas.get(i);
+//                    String date = ArticleDatas.timeStamp2Date(test.getPublishTime());
+//                    test.setDatePublishTime(date);
+//                }
+//                ArticleDatas test = datas.get(0);
+//                Log.i("TAG", test.toString());
+                //测试结束
+
+                //以下是填充数据
+                ActicleAdapter adapter = new ActicleAdapter(getActivity(),R.layout.item_acticle,datas);
+                listView.setAdapter(adapter);
+                Log.i("TAG", "执行到显示数据");
+            }
+            //请求失败回调
+            @Override
+            public void onFailure(Call<Data<ArticleListData>> call, Throwable t) {
+                Log.e("TAG", "get回调失败");
+            }
+        });
+
+    }
+}
